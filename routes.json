@@ -1,0 +1,14 @@
+[
+  {
+    "id": "mumbai-airport-to-kings-circle",
+    "label": "Mumbai Airport → Kings Circle",
+    "origin": { "lat": 19.09080980500737, "lng": 72.86292367871675 },
+    "destination": { "lat": 19.0270084490094, "lng": 72.85468716600619 }
+  },
+  {
+    "id": "decathlong-to-agara-lake",
+    "label": "Decathlon → Agara Lake",
+    "origin": { "lat": 12.90186318526484, "lng": 77.70707763135347 },
+    "destination": { "lat": 12.921322465290821, "lng": 77.6440156364948 }
+  }
+]

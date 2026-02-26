@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API Routing Analysis</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+</head>
+<body>
+
+<header>
+  <h1>API Routing Analysis</h1>
+  <select id="route-select"><option value="">Loading routes…</option></select>
+  <span id="last-updated"></span>
+</header>
+
+<div class="main">
+
+  <div id="empty-state" style="display:none">
+    <p>No data yet for this route.</p>
+    <small>The poller fires immediately on startup — check back in a moment.</small>
+  </div>
+
+  <div id="dashboard" style="display:none">
+
+    <!-- Summary cards -->
+    <div class="summary-cards">
+      <div class="card">
+        <div class="label">Data Points</div>
+        <div class="value" id="stat-count">—</div>
+        <div class="sub">total records</div>
+      </div>
+      <div class="card" id="card-tomtom-dev">
+        <div class="label">TomTom vs Google</div>
+        <div class="value" id="stat-tomtom-dev">—</div>
+        <div class="sub">avg deviation</div>
+      </div>
+      <div class="card" id="card-ola-dev">
+        <div class="label">Ola vs Google</div>
+        <div class="value" id="stat-ola-dev">—</div>
+        <div class="sub">avg deviation</div>
+      </div>
+      <div class="card">
+        <div class="label">TomTom Correlation</div>
+        <div class="value" id="stat-tomtom-corr">—</div>
+        <div class="sub">vs Google duration</div>
+      </div>
+      <div class="card">
+        <div class="label">Ola Correlation</div>
+        <div class="value" id="stat-ola-corr">—</div>
+        <div class="sub">vs Google duration</div>
+      </div>
+      <div class="card" id="card-divergence">
+        <div class="label">Route Divergences</div>
+        <div class="value" id="stat-divergence">—</div>
+        <div class="sub">different route detected</div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-grid">
+      <div class="chart-card">
+        <h2>Travel Time Over Time (minutes)</h2>
+        <canvas id="timeseries-chart"></canvas>
+      </div>
+      <div class="chart-card">
+        <h2>Deviation from Google Maps (%)</h2>
+        <canvas id="deviation-chart"></canvas>
+      </div>
+    </div>
+
+    <!-- Route Divergence Alerts -->
+    <div class="alerts-section">
+      <h2>Route Divergence Alerts</h2>
+      <div id="alerts-list"><p class="no-alerts">No route divergences detected yet.</p></div>
+    </div>
+
+    <!-- Distance table -->
+    <div class="table-section">
+      <h2>Recent Distance Comparison (last 10 records)</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Google (km)</th>
+            <th>TomTom (km)</th>
+            <th>TomTom Δ</th>
+            <th>Ola (km)</th>
+            <th>Ola Δ</th>
+          </tr>
+        </thead>
+        <tbody id="distance-table-body"></tbody>
+      </table>
+    </div>
+
+  </div><!-- /dashboard -->
+</div><!-- /main -->
+
+<script src="dashboard.js"></script>
+</body>
+</html>
