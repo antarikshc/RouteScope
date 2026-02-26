@@ -3,99 +3,181 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>API Routing Analysis</title>
+  <title>RouteScope</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 </head>
 <body>
 
+<!-- Header -->
 <header>
-  <h1>API Routing Analysis</h1>
-  <select id="route-select"><option value="">Loading routes…</option></select>
-  <span id="last-updated"></span>
+  <div class="header-left">
+    <div class="logo">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <circle cx="10" cy="10" r="9" stroke="#4285F4" stroke-width="1.5"/>
+        <path d="M10 3 L10 17 M3 10 L17 10" stroke="#4285F4" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="10" cy="10" r="2.5" fill="#4285F4"/>
+      </svg>
+      <span>RouteScope</span>
+    </div>
+    <nav id="route-tabs" class="route-tabs"></nav>
+  </div>
+  <div class="header-right">
+    <div class="live-badge">
+      <span class="live-dot"></span>
+      <span>LIVE</span>
+    </div>
+    <span id="last-updated" class="last-updated">—</span>
+  </div>
 </header>
 
-<div class="main">
-
-  <div id="empty-state" style="display:none">
-    <p>No data yet for this route.</p>
-    <small>The poller fires immediately on startup — check back in a moment.</small>
+<!-- Stats bar -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-header">
+      <span class="stat-dot" style="background:#4285F4"></span>
+      <span class="stat-label">Google Maps</span>
+      <span class="stat-badge baseline">baseline</span>
+    </div>
+    <div class="stat-value" id="stat-google">—</div>
+    <div class="stat-sub" id="stat-google-dist">— km</div>
   </div>
 
-  <div id="dashboard" style="display:none">
+  <div class="stat-sep"></div>
 
-    <!-- Summary cards -->
-    <div class="summary-cards">
-      <div class="card">
-        <div class="label">Data Points</div>
-        <div class="value" id="stat-count">—</div>
-        <div class="sub">total records</div>
+  <div class="stat-item">
+    <div class="stat-header">
+      <span class="stat-dot" style="background:#FF4757"></span>
+      <span class="stat-label">TomTom</span>
+    </div>
+    <div class="stat-value" id="stat-tomtom">—</div>
+    <div class="stat-sub">
+      <span id="stat-tomtom-dist">— km</span>
+      <span class="stat-delta" id="stat-tomtom-delta"></span>
+    </div>
+  </div>
+
+  <div class="stat-sep"></div>
+
+  <div class="stat-item">
+    <div class="stat-header">
+      <span class="stat-dot" style="background:#2ed573"></span>
+      <span class="stat-label">Ola Maps</span>
+    </div>
+    <div class="stat-value" id="stat-ola">—</div>
+    <div class="stat-sub">
+      <span id="stat-ola-dist">— km</span>
+      <span class="stat-delta" id="stat-ola-delta"></span>
+    </div>
+  </div>
+
+  <div class="stat-sep"></div>
+
+  <div class="stat-item">
+    <div class="stat-label">Avg TomTom Δ</div>
+    <div class="stat-value" id="stat-avg-tomtom">—</div>
+    <div class="stat-sub">over all polls</div>
+  </div>
+
+  <div class="stat-sep"></div>
+
+  <div class="stat-item">
+    <div class="stat-label">Avg Ola Δ</div>
+    <div class="stat-value" id="stat-avg-ola">—</div>
+    <div class="stat-sub">over all polls</div>
+  </div>
+
+  <div class="stat-sep"></div>
+
+  <div class="stat-item">
+    <div class="stat-label">Divergences</div>
+    <div class="stat-value" id="stat-divergences">—</div>
+    <div class="stat-sub"><span id="stat-count">0</span> total polls</div>
+  </div>
+</div>
+
+<!-- Main grid: map + charts -->
+<div class="main">
+  <div class="content-grid">
+
+    <!-- Map -->
+    <div class="panel map-panel">
+      <div class="panel-header">
+        <span class="panel-title">Route Map</span>
+        <div class="map-legend">
+          <span class="leg google"><span class="leg-line"></span>Google</span>
+          <span class="leg tomtom"><span class="leg-line"></span>TomTom</span>
+          <span class="leg ola"><span class="leg-line"></span>Ola</span>
+        </div>
+        <span class="panel-sub" id="map-ts">Latest poll</span>
       </div>
-      <div class="card" id="card-tomtom-dev">
-        <div class="label">TomTom vs Google</div>
-        <div class="value" id="stat-tomtom-dev">—</div>
-        <div class="sub">avg deviation</div>
-      </div>
-      <div class="card" id="card-ola-dev">
-        <div class="label">Ola vs Google</div>
-        <div class="value" id="stat-ola-dev">—</div>
-        <div class="sub">avg deviation</div>
-      </div>
-      <div class="card">
-        <div class="label">TomTom Correlation</div>
-        <div class="value" id="stat-tomtom-corr">—</div>
-        <div class="sub">vs Google duration</div>
-      </div>
-      <div class="card">
-        <div class="label">Ola Correlation</div>
-        <div class="value" id="stat-ola-corr">—</div>
-        <div class="sub">vs Google duration</div>
-      </div>
-      <div class="card" id="card-divergence">
-        <div class="label">Route Divergences</div>
-        <div class="value" id="stat-divergence">—</div>
-        <div class="sub">different route detected</div>
+      <div id="map">
+        <div class="map-empty">Initialising map…</div>
       </div>
     </div>
 
-    <!-- Charts -->
-    <div class="charts-grid">
-      <div class="chart-card">
-        <h2>Travel Time Over Time (minutes)</h2>
-        <canvas id="timeseries-chart"></canvas>
+    <!-- Charts column -->
+    <div class="charts-col">
+      <div class="panel chart-panel">
+        <div class="panel-header">
+          <span class="panel-title">Travel Time</span>
+          <span class="panel-sub">minutes · triangle = different route</span>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="timeseries-chart"></canvas>
+        </div>
       </div>
-      <div class="chart-card">
-        <h2>Deviation from Google Maps (%)</h2>
-        <canvas id="deviation-chart"></canvas>
+
+      <div class="panel chart-panel">
+        <div class="panel-header">
+          <span class="panel-title">Time Deviation from Google</span>
+          <span class="panel-sub">% difference per poll</span>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="deviation-chart"></canvas>
+        </div>
       </div>
     </div>
 
-    <!-- Route Divergence Alerts -->
-    <div class="alerts-section">
-      <h2>Route Divergence Alerts</h2>
-      <div id="alerts-list"><p class="no-alerts">No route divergences detected yet.</p></div>
+  </div><!-- /content-grid -->
+
+  <!-- Bottom row -->
+  <div class="bottom-grid">
+
+    <div class="panel alerts-panel">
+      <div class="panel-header">
+        <span class="panel-title">Route Divergence Alerts</span>
+        <span class="alert-pill" id="alert-pill">0</span>
+      </div>
+      <div id="alerts-list">
+        <div class="empty-msg">No divergences detected yet</div>
+      </div>
     </div>
 
-    <!-- Distance table -->
-    <div class="table-section">
-      <h2>Recent Distance Comparison (last 10 records)</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Time</th>
-            <th>Google (km)</th>
-            <th>TomTom (km)</th>
-            <th>TomTom Δ</th>
-            <th>Ola (km)</th>
-            <th>Ola Δ</th>
-          </tr>
-        </thead>
-        <tbody id="distance-table-body"></tbody>
-      </table>
+    <div class="panel table-panel">
+      <div class="panel-header">
+        <span class="panel-title">Distance Comparison</span>
+        <span class="panel-sub">last 10 records</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Google</th>
+              <th>TomTom</th>
+              <th>Δ dist</th>
+              <th>Ola</th>
+              <th>Δ dist</th>
+            </tr>
+          </thead>
+          <tbody id="dist-tbody"></tbody>
+        </table>
+      </div>
     </div>
 
-  </div><!-- /dashboard -->
+  </div><!-- /bottom-grid -->
 </div><!-- /main -->
 
 <script src="dashboard.js"></script>

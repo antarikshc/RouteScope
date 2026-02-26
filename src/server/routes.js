@@ -3,6 +3,11 @@ const router = express.Router();
 const { readRecords } = require('../storage');
 const routeConfig = require('../../routes.json');
 
+// GET /api/config — frontend config (exposes non-secret keys needed by browser)
+router.get('/config', (req, res) => {
+  res.json({ googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY });
+});
+
 // GET /api/routes — list all configured routes
 router.get('/routes', (req, res) => {
   res.json(routeConfig.map((r) => ({ id: r.id, label: r.label })));
